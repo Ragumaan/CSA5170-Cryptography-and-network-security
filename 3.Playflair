@@ -1,0 +1,56 @@
+import string
+
+class PlayfairCipher:
+    def __init__(self, keyword):
+        self.keyword = keyword.lower()
+        self.keytable = self.generate_keytable()
+    
+    def generate_keytable(self):
+        keytable = []
+        for letter in self.keyword:
+            if letter not in keytable and letter in string.ascii_lowercase:
+                keytable.append(letter)
+        for letter in string.ascii_lowercase:
+            if letter not in keytable and letter != 'j':
+                keytable.append(letter)
+        keytable = [keytable[i:i+5] for i in range(0, 25, 5)]
+        return keytable
+    
+    def find_letter_position(self, letter):
+        for i in range(5):
+            for j in range(5):
+                if self.keytable[i][j] == letter:
+                    return i, j
+    
+    def encrypt(self, plaintext):
+        plaintext = plaintext.lower().replace('j', 'i')
+        plaintext = ''.join(filter(str.isalpha, plaintext))
+        if len(plaintext) % 2 == 1:
+            plaintext += 'x'
+        ciphertext = ''
+        for i in range(0, len(plaintext), 2):
+            a, b = plaintext[i], plaintext[i+1]
+            a_i, a_j = self.find_letter_position(a)
+            b_i, b_j = self.find_letter_position(b)
+            if a_i == b_i:
+                ciphertext += self.keytable[a_i][(a_j+1)%5] + self.keytable[b_i][(b_j+1)%5]
+            elif a_j == b_j:
+                ciphertext += self.keytable[(a_i+1)%5][a_j] + self.keytable[(b_i+1)%5][b_j]
+            else:
+                ciphertext += self.keytable[a_i][b_j] + self.keytable[b_i][a_j]
+        return ciphertext
+    
+    def decrypt(self, ciphertext):
+        plaintext = ''
+        for i in range(0, len(ciphertext), 2):
+            a, b = ciphertext[i], ciphertext[i+1]
+            a_i, a_j = self.find_letter_position(a)
+            b_i, b_j = self.find_letter_position(b)
+            if a_i == b_i:
+                plaintext += self.keytable[a_i][(a_j-1)%5] + self.keytable[b_i][(b_j-1)%5]
+            elif a_j == b_j:
+                plaintext += self.keytable[(a_i-1)%5][a_j] + self.keytable[(b_i-1)%5][b_j]
+            else:
+                plaintext += self.keytable[a_i][b_j] + self.keytable[b_i][a_j]
+        plaintext = plaintext.replace('x', '')
+        return plaintext
