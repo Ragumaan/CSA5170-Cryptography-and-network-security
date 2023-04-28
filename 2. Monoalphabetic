@@ -1,0 +1,39 @@
+import random
+
+# define the plaintext and ciphertext alphabets
+plaintext_alphabet = "abcdefghijklmnopqrstuvwxyz"
+ciphertext_alphabet = "qwertyuiopasdfghjklzxcvbnm"
+
+# create a dictionary to hold the mapping from plaintext to ciphertext letters
+mapping = {}
+for i, letter in enumerate(plaintext_alphabet):
+    mapping[letter] = ciphertext_alphabet[i]
+
+# define a function to encrypt a message using the substitution cipher
+def encrypt(message):
+    ciphertext = ""
+    for letter in message.lower():
+        if letter in mapping:
+            ciphertext += mapping[letter]
+        else:
+            ciphertext += letter
+    return ciphertext
+
+# define a function to decrypt a message using the substitution cipher
+def decrypt(ciphertext):
+    plaintext = ""
+    for letter in ciphertext.lower():
+        if letter in mapping.values():
+            for key, value in mapping.items():
+                if value == letter:
+                    plaintext += key
+        else:
+            plaintext += letter
+    return plaintext
+
+# example usage
+message = "the quick brown fox jumps over the lazy dog"
+ciphertext = encrypt(message)
+print("Ciphertext:", ciphertext)
+decrypted_message = decrypt(ciphertext)
+print("Decrypted message:", decrypted_message)
