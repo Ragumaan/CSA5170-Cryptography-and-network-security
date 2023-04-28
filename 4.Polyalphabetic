@@ -1,0 +1,41 @@
+import string
+
+def generate_alphabets(key):
+    """
+    Generate a list of alphabets based on the key.
+    """
+    alphabets = []
+    for letter in key:
+        alphabet = string.ascii_uppercase.replace(letter, "")
+        alphabet = letter + alphabet
+        alphabets.append(alphabet)
+    return alphabets
+
+def polyalphabetic_substitution(plaintext, key):
+    """
+    Encrypt plaintext using polyalphabetic substitution cipher with key.
+    """
+    ciphertext = ""
+    alphabets = generate_alphabets(key)
+    key_len = len(key)
+    i = 0
+    for letter in plaintext:
+        if letter.isalpha():
+            alphabet = alphabets[i % key_len]
+            index = string.ascii_uppercase.index(letter.upper())
+            ciphertext += alphabet[index]
+            i += 1
+        else:
+            ciphertext += letter
+    return ciphertext
+
+def main():
+    plaintext = "HELLO WORLD"
+    key = "SECRET"
+    ciphertext = polyalphabetic_substitution(plaintext, key)
+    print("Plaintext: ", plaintext)
+    print("Key: ", key)
+    print("Ciphertext: ", ciphertext)
+
+if __name__ == '__main__':
+    main()
