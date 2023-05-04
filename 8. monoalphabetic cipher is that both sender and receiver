@@ -1,0 +1,20 @@
+import string
+
+def generate_cipher_alphabet(keyword):
+    # Create a set of the letters in the keyword and the remaining letters in the alphabet
+    alphabet = set(keyword.upper() + string.ascii_uppercase)
+    # Concatenate the letters in the set to create the cipher alphabet
+    return ''.join(sorted(alphabet))
+
+def monoalphabetic_cipher(plaintext, keyword):
+    # Generate the cipher alphabet from the keyword
+    cipher_alphabet = generate_cipher_alphabet(keyword)
+    # Create a translation table to map plaintext letters to their cipher alphabet equivalents
+    translation_table = str.maketrans(string.ascii_uppercase, cipher_alphabet)
+    # Use the translation table to encrypt the plaintext
+    ciphertext = plaintext.upper().translate(translation_table)
+    return ciphertext
+plaintext = "the quick brown fox jumps over the lazy dog"
+keyword = "CIPHER"
+ciphertext = monoalphabetic_cipher(plaintext, keyword)
+print(ciphertext)
