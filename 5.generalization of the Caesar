@@ -1,0 +1,40 @@
+def affine_caesar_cipher(a, b, plaintext):
+    """
+    Encrypts the given plaintext using the affine Caesar cipher with the specified parameters.
+    """
+    ciphertext = ""
+    for p in plaintext:
+        if p.isalpha():
+            # Convert to 0-based index, with A = 0, B = 1, etc.
+            pi = ord(p.upper()) - ord('A')
+            ci = (a * pi + b) % 26
+            # Convert back to letter
+            ciphertext += chr(ci + ord('A'))
+        else:
+            ciphertext += p
+    return ciphertext
+
+
+def is_one_to_one(a):
+    """
+    Determines whether the affine Caesar cipher with the specified a value is one-to-one.
+    """
+    # The cipher is not one-to-one if a and 26 have a common factor (other than 1)
+    for i in range(2, 26):
+        if a % i == 0 and 26 % i == 0:
+            return False
+    return True
+
+
+# a. The value of b can be any integer between 0 and 25, inclusive.
+# This is because the modulus operator ensures that the ciphertext letter will always be between 0 and 25,
+# so adding or subtracting any multiple of 26 from b will not change the output.
+
+# b. The value of a must be relatively prime to 26 (i.e., they share no factors other than 1).
+# Otherwise, there will be some pairs of plaintext letters that map to the same ciphertext letter,
+# violating the one-to-one requirement of an encryption algorithm.
+for a in range(26):
+    if is_one_to_one(a):
+        print(f"a = {a} is allowed")
+    else:
+        print(f"a = {a} is not allowed")
