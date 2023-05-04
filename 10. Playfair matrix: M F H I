@@ -1,0 +1,64 @@
+import re
+
+def prepare_input(text):
+    """Prepares the plaintext by converting to uppercase, removing spaces, and replacing J with I"""
+    text = text.upper().replace(" ", "").replace("J", "I")
+    # If plaintext length is odd, append an 'X' to make it even
+    if len(text) % 2 == 1:
+        text += "X"
+    return text
+
+def generate_key(keyword):
+    """Generates a Playfair cipher key from the given keyword"""
+    # Convert keyword to uppercase and remove duplicates
+    keyword = "".join(sorted(set(keyword.upper()), key=keyword.upper().index))
+    # Fill the 25-letter Playfair matrix with the keyword
+    key = list(keyword + "ABCDEFGHIKLMNOPQRSTUVWXYZ")
+    # Convert 'I' to 'J'
+    key = [c.replace("I", "J") for c in key]
+    return key
+
+def generate_matrix(key):
+    """Generates the 5x5 Playfair matrix from the given key"""
+    matrix = [key[i:i+5] for i in range(0, 25, 5)]
+    return matrix
+
+def find_position(matrix, letter):
+    """Finds the position of the given letter in the Playfair matrix"""
+    for i in range(5):
+        for j in range(5):
+            if matrix[i][j] == letter:
+                return (i, j)
+    return None
+
+def encrypt(message, key):
+    """Encrypts the plaintext using the Playfair cipher with the given key"""
+    # Prepare the plaintext and generate the Playfair matrix from the key
+    message = prepare_input(message)
+    matrix = generate_matrix(generate_key(key))
+    # Divide the plaintext into pairs of letters
+    pairs = re.findall(r"(..)", message)
+    ciphertext = ""
+    # Encrypt each pair of letters using the Playfair rules
+    for pair in pairs:
+        row1, col1 = find_position(matrix, pair[0])
+        row2, col2 = find_position(matrix, pair[1])
+        if row1 == row2:
+            # Same row, shift columns to the right (wrap around to first column if necessary)
+            ciphertext += matrix[row1][(col1+1)%5] + matrix[row2][(col2+1)%5]
+        elif col1 == col2:
+            # Same column, shift rows down (wrap around to first row if necessary)
+            ciphertext += matrix[(row1+1)%5][col1] + matrix[(row2+1)%5][col2]
+        else:
+            # Rectangle rule, swap first column with second column
+            ciphertext += matrix[row1][col2] + matrix[row2][col1]
+    return ciphertext
+
+# Example usage
+plaintext = "Must see you over Cadogan West. Coming at once."
+key = "CIPHER"
+ciphertext = encrypt(plaintext, key)
+print(ciphertext)
+
+
+
