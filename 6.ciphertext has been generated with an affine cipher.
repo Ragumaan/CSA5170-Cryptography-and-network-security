@@ -1,0 +1,38 @@
+import collections
+
+# Expected frequency of letters in English text
+EXPECTED_FREQ = {"E": 12.02, "T": 9.10, "A": 8.12, "O": 7.68, "I": 7.31,
+                 "N": 6.95, "S": 6.28, "R": 6.02, "H": 5.92, "D": 4.32,
+                 "L": 3.98, "U": 2.88, "C": 2.71, "M": 2.61, "F": 2.30,
+                 "Y": 2.11, "W": 2.09, "G": 2.03, "P": 1.82, "B": 1.49,
+                 "V": 1.11, "K": 0.69, "X": 0.17, "Q": 0.11, "J": 0.10,
+                 "Z": 0.07}
+
+# Ciphertext with most frequent letter "B" and second most frequent letter "U"
+ciphertext = "BUUXOBTBZQXBXVVXBROUVVZXBBUXOOXUXBRRXXBUXOUXOUXVVXBQOXBRRXXBRRXXBRRXXBUXOOX"
+
+# Count the frequency of each letter in the ciphertext
+freqs = collections.Counter(ciphertext)
+
+# Find the two most frequent letters in the ciphertext
+most_common = freqs.most_common(2)
+most_common_letters = [x[0] for x in most_common]
+
+# Make educated guesses for a and b based on the frequency of the most common letters
+a = (ord(most_common_letters[0]) - ord(most_common_letters[1])) * pow(
+    ord('E') - ord('T'), -1, 26) % 26
+b = (ord(most_common_letters[0]) - ord('E') * a) % 26
+
+# Decrypt the ciphertext using the guessed values of a and b
+plaintext = ""
+for c in ciphertext:
+    if c.isalpha():
+        ci = (ord(c) - ord('A'))
+        pi = (a * (ci - b)) % 26
+        plaintext += chr(pi + ord('A'))
+    else:
+        plaintext += c
+
+# Print the guessed values of a and b, as well as the decrypted plaintext
+print(f"a = {a}, b = {b}")
+print(plaintext)
