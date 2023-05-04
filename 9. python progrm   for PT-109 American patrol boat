@@ -1,0 +1,56 @@
+
+# Define the Playfair cipher decryption function
+def decrypt_playfair(key, ciphertext):
+    # Create the 5x5 key square
+    key = key.upper().replace("J", "I")
+    key_chars = []
+    for char in key:
+        if char not in key_chars:
+            key_chars.append(char)
+    alphabet = "ABCDEFGHIKLMNOPQRSTUVWXYZ"
+    for char in alphabet:
+        if char not in key_chars:
+            key_chars.append(char)
+    key_square = [key_chars[i:i+5] for i in range(0, 25, 5)]
+    
+    # Remove any whitespace from the ciphertext
+    ciphertext = ciphertext.upper().replace(" ", "")
+    
+    # Split the ciphertext into pairs of letters
+    ciphertext_pairs = []
+    i = 0
+    while i < len(ciphertext):
+        pair = ciphertext[i:i+2]
+        if len(pair) == 1:
+            pair += "X"
+        elif pair[0] == pair[1]:
+            pair = pair[0] + "X" + pair[1]
+            i -= 1
+        ciphertext_pairs.append(pair)
+        i += 2
+    
+    # Decrypt each pair of letters
+    plaintext = ""
+    for pair in ciphertext_pairs:
+        row1, col1 = None, None
+        row2, col2 = None, None
+        for i in range(5):
+            for j in range(5):
+                if key_square[i][j] == pair[0]:
+                    row1, col1 = i, j
+                elif key_square[i][j] == pair[1]:
+                    row2, col2 = i, j
+        if row1 == row2:
+            plaintext += key_square[row1][(col1-1)%5] + key_square[row2][(col2-1)%5]
+        elif col1 == col2:
+            plaintext += key_square[(row1-1)%5][col1] + key_square[(row2-1)%5][col2]
+        else:
+            plaintext += key_square[row1][col2] + key_square[row2][col1]
+    
+    return plaintext
+
+# Decrypt the PT-109 Playfair ciphertext with the keyword "PT109"
+key = "PT109"
+ciphertext = "KXJEY UREBE ZWEHE WRYTU HEYFS KREHE GOYFI WTTTU OLKSY CAJPO BOTEI ZONTX BYBNT GONEY CUZWR GDSON SXBOU YWRHE BAAHY USEDQ"
+plaintext = decrypt_playfair(key, ciphertext)
+print(plaintext)
