@@ -1,0 +1,44 @@
+import numpy as np
+
+# Define the encryption function
+def hill_encrypt(message, key):
+    # Convert the message to numbers
+    message = [ord(c) - 97 for c in message.lower() if c.isalpha()]
+    # Pad the message with 'x' if its length is not a multiple of 2
+    if len(message) % 2 != 0:
+        message.append(23)  # 'x' = 23
+    # Reshape the message into a 2 x n matrix
+    message = np.array(message).reshape(-1, 2).T
+    # Apply the Hill cipher transformation
+    ciphertext = np.dot(key, message) % 26
+    # Convert the ciphertext back to letters
+    ciphertext = ''.join([chr(c + 97) for c in ciphertext.T.flatten()])
+    return ciphertext
+
+# Define the decryption function
+def hill_decrypt(ciphertext, key):
+    # Convert the ciphertext to numbers
+    ciphertext = [ord(c) - 97 for c in ciphertext.lower() if c.isalpha()]
+    # Reshape the ciphertext into a 2 x n matrix
+    ciphertext = np.array(ciphertext).reshape(-1, 2).T
+    # Calculate the inverse of the key
+    inv_key = np.linalg.inv(key)
+    # Apply the inverse transformation
+    plaintext = np.dot(inv_key, ciphertext) % 26
+    # Convert the plaintext back to letters
+    plaintext = ''.join([chr(c + 97) for c in plaintext.T.flatten()])
+    # Remove any padding characters
+    plaintext = plaintext.replace('x', '')
+    return plaintext
+
+# Define the key
+key = np.array([[9, 4], [5, 7]])
+
+# Encrypt the message
+message = "meet me at the usual place at ten rather than eight oclock"
+ciphertext = hill_encrypt(message, key)
+print("Ciphertext:", ciphertext)
+
+# Decrypt the ciphertext
+plaintext = hill_decrypt(ciphertext, key)
+print("Plaintext:", plaintext)
