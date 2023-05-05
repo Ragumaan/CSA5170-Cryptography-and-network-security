@@ -1,0 +1,9 @@
+import math
+
+def num_possible_keys():
+    alphabet = 'abcdefghiklmnopqrstuvwxyz'
+    num_letters = len(alphabet)
+    num_pairs = num_letters * (num_letters - 1) // 2
+    return math.pow(num_pairs, 2)
+
+print("The Playfair cipher has approximately", int(num_possible_keys()), "possible keys.")
