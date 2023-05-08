@@ -1,0 +1,25 @@
+import random
+
+# Define a function to generate a random key of length n
+def generate_random_key(n):
+    return [random.randint(0, 25) for i in range(n)]
+
+# Define a function to encrypt a message using the one-time pad version of the Vigenère cipher
+def vigenere_one_time_pad_encrypt(plaintext, key):
+    ciphertext = []
+    key_index = 0
+    for letter in plaintext:
+        shift = key[key_index]
+        ciphertext.append((ord(letter) - 97 + shift) % 26 + 97)
+        key_index = (key_index + 1) % len(key)
+    return ''.join(chr(letter) for letter in ciphertext)
+
+# Define a function to decrypt a message encrypted with the one-time pad version of the Vigenère cipher
+def vigenere_one_time_pad_decrypt(ciphertext, key):
+    plaintext = []
+    key_index = 0
+    for letter in ciphertext:
+        shift = key[key_index]
+        plaintext.append((ord(letter) - 97 - shift) % 26 + 97)
+        key_index = (key_index + 1) % len(key)
+    return ''.join(chr(letter) for letter in plaintext)
