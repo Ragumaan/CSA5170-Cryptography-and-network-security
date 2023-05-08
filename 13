@@ -1,0 +1,24 @@
+import numpy as np
+
+# Define a function to perform a known plaintext attack on the Hill cipher
+def hill_known_plaintext_attack(ciphertexts, plaintexts):
+    # Convert the plaintexts and ciphertexts to arrays
+    plaintexts_array = np.array(plaintexts)
+    ciphertexts_array = np.array(ciphertexts)
+
+    # Calculate the matrix A using the first two plaintext-ciphertext pairs
+    A = np.mod(np.dot(np.linalg.inv(plaintexts_array[:2]), ciphertexts_array[:2]), 26)
+
+    # Calculate the inverse of matrix A
+    A_inv = np.linalg.inv(A)
+
+    # Calculate the key matrix B using the first plaintext-ciphertext pair
+    B = np.mod(np.dot(ciphertexts_array[0], np.linalg.inv(plaintexts_array[0])), 26)
+
+    # Decrypt the remaining ciphertexts using the key matrix B and the inverse of matrix A
+    decrypted_plaintexts = []
+    for ciphertext in ciphertexts[1:]:
+        plaintext = np.mod(np.dot(np.dot(A_inv, ciphertext), B), 26)
+        decrypted_plaintexts.append(plaintext)
+
+    return decrypted_plaintexts
