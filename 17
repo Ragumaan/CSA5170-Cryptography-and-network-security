@@ -1,0 +1,62 @@
+from Crypto.Cipher import DES
+
+# Set the key
+key = b'01234567'
+
+# Set the ciphertext
+ciphertext = b'\x8e\x0b\x12\xa9\x1b\x6b\x5f\x38'
+
+# Create the DES cipher object
+cipher = DES.new(key, DES.MODE_ECB)
+
+# Decrypt the ciphertext
+plaintext = cipher.decrypt(ciphertext)
+
+# Print the decrypted plaintext
+print("Decrypted plaintext: ", plaintext)
+# Set the key
+key = b'0123456789ABCDEF'
+
+# Set the parity bits
+parity_bits = [
+    57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18,
+    10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60, 52, 44, 36,
+    63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22,
+    14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4
+]
+
+# Set the shift schedule
+shift_schedule = [
+    1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1
+]
+
+# Perform the initial key permutation
+key = bytes([key[bit - 1] for bit in parity_bits])
+
+# Split the key into two halves
+left_half = key[:28]
+right_half = key[28:]
+
+# Generate the 16 subkeys
+subkeys = []
+for i in range(16):
+    # Shift the two halves based on the shift schedule
+    left_half = left_half[shift_schedule[i]:] + left_half[:shift_schedule[i]]
+    right_half = right_half[shift_schedule[i]:] + right_half[:shift_schedule[i]]
+    
+    # Combine the two halves
+    combined_half = left_half + right_half
+    
+    # Perform the subkey permutation
+    subkey = bytes([combined_half[bit - 1] for bit in parity_bits])
+    
+    # Add the subkey to the list of subkeys
+    subkeys.append(subkey)
+
+# Reverse the order of the subkeys for decryption
+subkeys = subkeys[::-1]
+
+# Print the subkeys
+print("Subkeys: ")
+for i, subkey in enumerate(subkeys):
+    print("K{}: {}".format(i+1, subkey.hex()))
