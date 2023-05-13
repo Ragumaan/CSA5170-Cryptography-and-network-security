@@ -1,0 +1,15 @@
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad
+
+def encrypt(plaintext, key):
+    cipher = AES.new(key, AES.MODE_ECB)
+    padded_plaintext = pad(plaintext, AES.block_size)
+    ciphertext = cipher.encrypt(padded_plaintext)
+    return ciphertext
+
+plaintext = b"Hello, World!"
+key = b"1234567890123456" # 16 bytes (128 bits) key for AES
+
+ciphertext = encrypt(plaintext, key)
+
+print(ciphertext.hex())
