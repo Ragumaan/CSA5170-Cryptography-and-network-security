@@ -1,84 +1,57 @@
 import string
+from collections import Counter
 
-# Define a function to perform the letter frequency attack
-def letter_frequency_attack(ciphertext, num_plaintexts):
-    # Create a dictionary to store the frequency of each letter in the ciphertext
-    freq_dict = {}
-    for letter in ciphertext:
-        if letter in freq_dict:
-            freq_dict[letter] += 1
+def get_letter_frequency(ciphertext):
+    # Count the frequency of each letter in the ciphertext
+    frequencies = Counter(ciphertext)
+
+    # Calculate the percentage of each letter frequency
+    total_count = sum(frequencies.values())
+    letter_frequency = {letter: count / total_count for letter, count in frequencies.items()}
+    
+    return letter_frequency
+
+def decrypt(ciphertext, key):
+    # Decrypt the ciphertext using the given key
+    plaintext = ""
+    for char in ciphertext:
+        if char in key:
+            plaintext += key[char]
         else:
-            freq_dict[letter] = 1
+            plaintext += char
+    return plaintext
 
-    # Sort the dictionary by the frequency of each letter in descending order
-    sorted_freq_dict = sorted(freq_dict.items(), key=lambda x: x[1], reverse=True)
+def get_top_plaintexts(ciphertext, num_plaintexts):
+    letter_frequency = get_letter_frequency(ciphertext)
 
-    # Get the most common letter in the ciphertext (assumed to be 'e')
-    most_common_letter = sorted_freq_dict[0][0]
+    # Sort the letters in descending order of frequency
+    sorted_letters = sorted(letter_frequency.keys(), key=lambda x: letter_frequency[x], reverse=True)
+    
+    # Assign the most frequent letters to the corresponding English letters
+    most_frequent = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+    key = {sorted_letters[i]: most_frequent[i] for i in range(len(sorted_letters))}
 
-    # Calculate the key by subtracting the ASCII code of the most common letter from the ASCII code of 'e'
-    key = ord('e') - ord(most_common_letter)
+    # Generate the plaintexts using the key
+    plaintexts = [decrypt(ciphertext, key)]
 
-    # Create a list to store the possible plaintexts
-    plaintexts = []
+    # Generate additional possible plaintexts by swapping less frequent letters
+    for i in range(1, num_plaintexts):
+        new_key = key.copy()
+        new_key[sorted_letters[i-1]], new_key[sorted_letters[i]] = new_key[sorted_letters[i]], new_key[sorted_letters[i-1]]
+        plaintexts.append(decrypt(ciphertext, new_key))
+    
+    return plaintexts
 
-    # Decrypt the ciphertext using the key and add the resulting plaintext to the list
-    plaintext = ''
-    for letter in ciphertext:
-        if letter in string.ascii_lowercase:
-            plaintext += chr((ord(letter) - ord('a' + key)) % 26 + ord('a'))
-        elif letter in string.ascii_uppercase:
-            plaintext += chr((ord(letter) - ord('A' + key)) % 26 + ord('A'))
-        else:
-            plaintext += letter
-    plaintexts.append(plaintext)
+def main():
+    ciphertext = input("Enter the ciphertext: ")
+    num_plaintexts = int(input("Enter the number of top plaintexts to generate: "))
 
-    # Generate additional possible plaintexts by trying different keys
-    for i in range(1, 26):
-        plaintext = ''
-        for letter in ciphertext:
-            if letter in string.ascii_lowercase:
-                plaintext += chr((ord(letter) - ord('a' + i)) % 26 + ord('a'))
-            elif letter in string.ascii_uppercase:
-                plaintext += chr((ord(letter) - ord('A' + i)) % 26 + ord('A'))
-            else:
-                plaintext += letter
-        plaintexts.append(plaintext)
+    plaintexts = get_top_plaintexts(ciphertext.upper(), num_plaintexts)
 
-    # Create a list to store the possible keys
-    keys = []
+    print(f"\nTop {num_plaintexts} possible plaintexts:")
+    for i, plaintext in enumerate(plaintexts, 1):
+        print(f"\nPlaintext {i}:")
+        print(plaintext)
 
-    # Loop through each possible plaintext and generate a key based on the letter frequency
-    for plaintext in plaintexts:
-        # Create a dictionary to store the frequency of each letter in the plaintext
-        freq_dict = {}
-        for letter in plaintext:
-            if letter in freq_dict:
-                freq_dict[letter] += 1
-            else:
-                freq_dict[letter] = 1
-
-        # Sort the dictionary by the frequency of each letter in descending order
-        sorted_freq_dict = sorted(freq_dict.items(), key=lambda x: x[1], reverse=True)
-
-        # Create a mapping between the most common letters in the plaintext and the most common letters in English
-        mapping = {}
-        for i in range(5):
-            mapping[sorted_freq_dict[i][0]] = string.ascii_lowercase[i]
-            mapping[sorted_freq_dict[i][0].upper()] = string.ascii_uppercase[i]
-
-        # Generate the key based on the mapping
-        key = ''
-        for letter in ciphertext:
-            if letter in mapping:
-                key += mapping[letter]
-            else:
-                key += letter
-        keys.append(key)
-
-    # Create a list to store the possible plaintexts decrypted with each key
-    decrypted_plaintexts = []
-
-    # Loop through each possible key and decrypt the ciphertext
-    for key in keys:
-        decrypted
+if __name__ == '__main__':
+    main()
